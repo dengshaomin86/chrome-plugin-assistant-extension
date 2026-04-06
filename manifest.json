@@ -2,8 +2,19 @@
   "manifest_version": 3,
   "name": "Assistant extension",
   "version": "1.0",
-  "permissions": ["nativeMessaging", "tabs", "cookies", "activeTab"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "contextMenus",
+    "notifications",
+    "nativeMessaging",
+    "tabs",
+    "cookies",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:12323/",
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
