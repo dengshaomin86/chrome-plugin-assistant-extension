@@ -17,14 +17,15 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "as-Pageinfo",
     title: "下载",
-    contexts: ["page"],
+    contexts: ["page", "link"],
   });
 });
 
 // 监听点击右键菜单
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
-    const { url, title } = tab;
+    const url = info.linkUrl || tab.url;
+    const { title } = tab;
     if (info.menuItemId === "as-Addbookmark") {
       await sendMessageToElectron({ type: "Addbookmark", url, title });
     }
