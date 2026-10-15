@@ -19,6 +19,13 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "下载",
     contexts: ["page", "link"],
   });
+
+  chrome.contextMenus.create({
+    id: "as-dy-cookies",
+    title: "复制cookies",
+    contexts: ["page", "link"],
+    documentUrlPatterns: ["https://*.douyu.com/*"],
+  });
 });
 
 // 监听点击右键菜单
@@ -33,6 +40,19 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === "as-Pageinfo") {
       const cookies = await getCookiesByUrl(url);
       await sendMessageToElectron({ type: "Pageinfo", url, cookies });
+    }
+
+    if (info.menuItemId === "as-dy-cookies") {
+      const __all_cookies = await getCookiesByUrl(url);
+      const cookies = __all_cookies.filter((v) => !/\.msg\./i.test(v.domain) && ["acf_auth", "acf_jwt_token"].includes(v.name)).map(({ name, value }) => ({ name, value }));
+      const __val = { type: "SyncDYCookies", cookies };
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (text) => navigator.clipboard.writeText(text),
+        args: [JSON.stringify(__val)],
+      });
+      notification(`到期：${tokenExpire(cookies.find((v) => v.name === "acf_jwt_token")?.value)}`, "复制成功");
+      await sendMessageToElectron(__val);
     }
   } catch (error) {
     notification(error.message);
@@ -66,6 +86,18 @@ async function getCurrentTabUrl() {
 // 通过 url 获取 cookies
 async function getCookiesByUrl(url) {
   return chrome.cookies.getAll({ domain: new URL(url).hostname.replace(/^www/i, "") });
+}
+
+function tokenExpire(token) {
+  try {
+    const [, str] = token.split(".");
+    const exp = JSON.parse(atob(str)).exp * 1000;
+    // console.log(`exp: ${new Date(exp)}`);
+    // return exp > Date.now();
+    return new Date(exp);
+  } catch (error) {
+    return false;
+  }
 }
 
 // 显示通知

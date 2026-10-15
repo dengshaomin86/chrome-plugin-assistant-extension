@@ -9,7 +9,8 @@
     "tabs",
     "cookies",
     "activeTab",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "http://localhost:12323/",
