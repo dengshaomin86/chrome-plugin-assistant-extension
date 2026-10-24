@@ -44,7 +44,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
     if (info.menuItemId === "as-dy-cookies") {
       const __all_cookies = await getCookiesByUrl(url);
-      const cookies = __all_cookies.filter((v) => !/\.msg\./i.test(v.domain) && ["acf_auth", "acf_jwt_token"].includes(v.name)).map(({ name, value }) => ({ name, value }));
+      const cookies = __all_cookies.filter((v) => v.domain === "www.douyu.com" && ["acf_auth", "acf_jwt_token"].includes(v.name)).map(({ name, value }) => ({ name, value }));
       const __val = { type: "SyncDYCookies", cookies };
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
